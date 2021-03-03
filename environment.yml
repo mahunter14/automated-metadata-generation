@@ -1,0 +1,12 @@
+name: amg
+
+dependencies:
+  - python
+  - gdal
+  - jsonschema
+  - pvl
+  - pyproj
+  - pystac
+  - shapely
+  - pip:
+      - gis-metadata-parser
