@@ -28,6 +28,13 @@ class IsisMetadata():
         return self._footprint
 
     @property
+    def longitude_domain(self):
+        try:
+            return self.data['IsisCube']['Mapping']['LongitudeDomain']
+        except:
+            return None
+
+    @property
     def geometry(self):
         return self.footprint.__geo_interface__
     

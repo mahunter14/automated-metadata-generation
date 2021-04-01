@@ -1,12 +1,12 @@
 import json
 import os
-from osgeo import gdal
+from osgeo import gdal, osr
 import pyproj
 
 from amg.utils import Band
 
 gdal.UseExceptions()
-
+osr.UseExceptions()
 
 class GDALMetadata():
     def __init__(self, datafile):
@@ -29,19 +29,23 @@ class GDALMetadata():
     
     @property
     def crs(self):
-        return pyproj.CRS.from_proj4(self.projstr)
+        if self.projstr:
+            return pyproj.CRS.from_proj4(self.projstr)
     
     @property
     def projstr(self):
-        return self.srs.ExportToProj4()
+        if self.srs:
+            return self.srs.ExportToProj4()
     
     @property
     def projjson(self):
-        return json.loads(self.crs.to_json())
+        if self.crs:
+            return json.loads(self.crs.to_json())
     
     @property
     def wkt2(self):
-        return json.dumps(self.srs.ExportToWkt())
+        if self.srs:
+            return json.dumps(self.srs.ExportToWkt())
     
     @property
     def epsg(self):
@@ -91,7 +95,10 @@ class GDALMetadata():
                                         unit = unittype
                                        ))
         return self._bands
-            
+
+    @property
+    def longitude_origin(self):
+        return self.srs.GetProjParm(osr.SRS_PP_CENTRAL_MERIDIAN)        
         
     @property
     def bbox(self):

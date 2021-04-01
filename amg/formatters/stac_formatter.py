@@ -1,4 +1,6 @@
 import datetime
+import os
+import string
 
 import pystac
 from pystac.extensions.projection import ProjectionItemExt
@@ -36,9 +38,26 @@ def populate_projection_extension(item, obj):
     if obj.geotransform:
         item.ext.projection.transform = obj.geotransform
 
+def populate_assets(assets, obj):
+    asset_objs = {}
+    for asset in assets:
+        for key, value in asset.items():
+            try:
+                substitution_keys = [s[1] for s in string.Formatter().parse(value) if s[1] is not None]
+                if substitution_keys:
+                    substitution_kwargs = {k:getattr(obj, k) for k in substitution_keys}
+                    asset[key] =  value.format(**substitution_kwargs)
+            except:
+                pass
+        asset_objs[asset['key']] = pystac.Asset.from_dict(asset)
+
+    return asset_objs
+
 def to_stac(obj, 
             extensions=[pystac.Extensions.PROJECTION,
-                        pystac.Extensions.DATACUBE]):    
+                        pystac.Extensions.DATACUBE],
+            assets={},
+            collection=None):    
     
     properties = {}
     
@@ -88,6 +107,8 @@ def to_stac(obj,
                        datetime=dt,
                        stac_extensions=[pystac.Extensions.PROJECTION,
                                        pystac.Extensions.DATACUBE],
+                       href=os.path.join(obj.href,f'{obj.productid}.json'),
+                       collection=collection,
                        properties=properties)
     
     # Populate the projection extension
@@ -96,4 +117,8 @@ def to_stac(obj,
     # Populate the data cube extension.
     populate_datacube_extension(item, obj)
     
+    #Populate the assets in the item using the passed assets dict
+    assets = populate_assets(assets, obj)
+    item.assets = assets
+
     return item

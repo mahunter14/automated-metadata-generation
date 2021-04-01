@@ -1,7 +1,7 @@
 name: amg
 
 dependencies:
-  - python
+  - python<3.9
   - gdal
   - jsonschema
   - pvl

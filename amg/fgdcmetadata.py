@@ -1,16 +1,258 @@
-from gis_metadata.fgdc_metadata_parser import FgdcParser
+import warnings
+from frozendict import frozendict
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
+from gis_metadata.fgdc_metadata_parser import FgdcParser
+from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS
+
+class BaseCustomParser(FgdcParser):
+    def _init_data_map(self):
+        super(BaseCustomParser, self)._init_data_map()
+        
+        # Define simple structures
+        planar_unit_prop = 'planar_distance_units'
+        self._data_map[planar_unit_prop] = 'spref/horizsys/planar/planci/plandu'
+        self._metadata_props.add(planar_unit_prop)
+
+        planar_coordinate_representation_prop = 'planar_coordinate_representation'
+        self._data_map[planar_coordinate_representation_prop] = 'spref/horizsys/planar/planci/plance'
+        self._metadata_props.add(planar_coordinate_representation_prop)
+
+        # Add GEODETIC structure to data map
+        geodetic_definition = {
+            'horizontal_datum':'{horizontal_datum}',
+            'ellipsoid':'{ellipsoid}',
+            'semi_major_axis':'{semi_major_axis}',
+            'inverse_flattening':'{inverse_flattening}'
+        }
+        geodetic_prop = 'geodetic'
+        geodetic_xpath = 'spref/horizsys/{geodetic_path}'
+        
+        self._data_structures[geodetic_prop] = format_xpaths(
+            geodetic_definition,
+            horizontal_datum=geodetic_xpath.format(geodetic_path='geodetic/horizdn'),
+            ellipsoid=geodetic_xpath.format(geodetic_path='geodetic/ellips'),
+            semi_major_axis=geodetic_xpath.format(geodetic_path='geodetic/semiaxis'),
+            inverse_flattening=geodetic_xpath.format(geodetic_path='geodetic/denflat')
+        )
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=geodetic_prop)] = geodetic_prop
+        self._data_map[geodetic_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(geodetic_prop)
+
+        # Add PROCESSOR structure
+        contact_definition = {
+            'name':'{name}',
+            'organization':'{organization}',
+            'position':'{position}',
+            'address':'{address}',
+            'address_type':'{address_type}',
+            'city':'{city}',
+            'state':'{state}',
+            'postal':'{postal}',
+            'country':'{country}',
+            'phone':'{phone}',
+            'email':'{email}',
+            'fax':'{fax}'
+        }
+        processor_contact_prop = 'processor'
+        processor_contact_xpath = 'dataqual/lineage/procstep/proccont/cntinfo/{pc_xpath}'
+
+        self._data_structures[processor_contact_prop] = format_xpaths(
+            contact_definition,
+            name=processor_contact_xpath.format(pc_xpath='cntperp/cntper'),
+            organization=processor_contact_xpath.format(pc_xpath='cntperp/cntorg'),
+            position=processor_contact_xpath.format(pc_xpath='cntpos'),
+            address=processor_contact_xpath.format(pc_xpath='cntaddr/address'),
+            address_type=processor_contact_xpath.format(pc_xpath='cntaddr/addrtype'),
+            city=processor_contact_xpath.format(pc_xpath='cntaddr/city'),
+            state=processor_contact_xpath.format(pc_xpath='cntaddr/state'),
+            postal=processor_contact_xpath.format(pc_xpath='cntaddr/postal'),
+            country=processor_contact_xpath.format(pc_xpath='cntaddr/country'),
+            phone=processor_contact_xpath.format(pc_xpath='cntvoice'),
+            email=processor_contact_xpath.format(pc_xpath='cntemail'),
+            fax=processor_contact_xpath.format(pc_xpath='cntfax')
+        )
+
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=processor_contact_prop)] = processor_contact_prop
+        self._data_map[processor_contact_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(processor_contact_prop)
+
+        # Add PoC Address
+        poc_prop = 'point_of_contact'
+        poc_prop_xpath = 'idinfo/ptcontac/cntinfo/{poc_xpath}'
+        
+        self._data_structures[poc_prop] = format_xpaths(  
+            contact_definition,
+            name=poc_prop_xpath.format(poc_xpath='cntperp/cntper'),
+            organization=poc_prop_xpath.format(poc_xpath='cntperp/cntorg'),
+            position=poc_prop_xpath.format(poc_xpath='cntpos'),
+            address=poc_prop_xpath.format(poc_xpath='cntaddr/address'),
+            address_type=poc_prop_xpath.format(poc_xpath='cntaddr/addrtype'),
+            city=poc_prop_xpath.format(poc_xpath='cntaddr/city'),
+            state=poc_prop_xpath.format(poc_xpath='cntaddr/state'),
+            postal=poc_prop_xpath.format(poc_xpath='cntaddr/postal'),
+            country=poc_prop_xpath.format(poc_xpath='cntaddr/country'),
+            phone=poc_prop_xpath.format(poc_xpath='cntvoice'),
+            email=poc_prop_xpath.format(poc_xpath='cntemail'),
+            fax=poc_prop_xpath.format(poc_xpath='cntfax')
+        )
+
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=poc_prop)] = poc_prop
+        self._data_map[poc_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(poc_prop)
+
+    def serialize(self, use_template=False):
+        serialized = super(BaseCustomParser, self).serialize(use_template)
+        dom_string = minidom.parseString(serialized).toprettyxml(indent='  ', encoding='UTF-8')
+        return b'\n'.join([s for s in dom_string.splitlines() if s.strip()])
+
+class OrthographicFgdcParser(BaseCustomParser):
+    
+    def _init_data_map(self):
+        super(OrthographicFgdcParser, self)._init_data_map()
+        
+        # Define PROJECTION as a complex structure
+        mp_definition = {
+            'name':'{name}',
+            'center_longitude':'{center_longitude}',
+            'center_latitude': '{center_latitude}',
+            'false_easting': '{false_easting}',
+            'false_northing': '{false_northing}'
+        }
+        mp_prop = 'projection'
+        mp_xpath = 'spref/horizsys/planar/mapproj/{mp_path}'
+        
+        # Add PROJECTION structure to data map
+        self._data_structures[mp_prop] = format_xpaths(
+            mp_definition,
+            name=mp_xpath.format(mp_path='mapprojn'),
+            center_longitude=mp_xpath.format(mp_path='orthogr/longpc'),
+            center_latitude=mp_xpath.format(mp_path='orthogr/latprjc'),
+            false_easting=mp_xpath.format(mp_path='orthogr/feast'),
+            false_northing=mp_xpath.format(mp_path='orthogr/fnorth')
+        )
+        
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=mp_prop)] = mp_prop
+        self._data_map[mp_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(mp_prop)
+
+class PolarStereoGraphicFgdcParser(BaseCustomParser):
+    
+    def _init_data_map(self):
+        super(PolarStereoGraphicFgdcParser, self)._init_data_map()
+
+        # Define PROJECTION as a complex structure
+        mp_definition = {
+            'name':'{name}',
+            'sv_longitude':'{sv_longitude}',
+            'standard_parallel': '{standard_parallel}',
+            'scale_factor':'{scale_factor}',
+            'false_easting': '{false_easting}',
+            'false_northing': '{false_northing}'
+        }
+        mp_prop = 'projection'
+        mp_xpath = 'spref/horizsys/planar/mapproj/{mp_path}'
+        
+        # Add PROJECTION structure to data map
+        self._data_structures[mp_prop] = format_xpaths(
+            mp_definition,
+            name=mp_xpath.format(mp_path='mapprojn'),
+            standard_parallel=mp_xpath.format(mp_path='polarst/stdparll'),
+            sv_longitude=mp_xpath.format(mp_path='polarst/svlong'),
+            scale_factor=mp_xpath.format(mp_path='polarst/sfprjorg'),
+            false_easting=mp_xpath.format(mp_path='polarst/feast'),
+            false_northing=mp_xpath.format(mp_path='polarst/fnorth')
+        )
+        
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=mp_prop)] = mp_prop
+        self._data_map[mp_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(mp_prop)
+
+class EquirectangularFgdcParser(BaseCustomParser):
+    
+    def _init_data_map(self):
+        super(EquirectangularFgdcParser, self)._init_data_map()
+
+        # Define PROJECTION as a complex structure
+        mp_definition = {
+            'name': '{name}',
+            'standard_parallel': '{standard_parallel}',
+            'meridian_longitude': '{meridian_longitude}',
+            'origin_latitude': '{origin_latitude}',
+            'false_easting': '{false_easting}',
+            'false_northing': '{false_northing}'
+        }
+        mp_prop = 'projection'
+        mp_xpath = 'spref/horizsys/planar/mapproj/{mp_path}'
+        
+        # Add PROJECTION structure to data map
+        self._data_structures[mp_prop] = format_xpaths(
+            mp_definition,
+            name=mp_xpath.format(mp_path='mapprojn'),
+            standard_parallel=mp_xpath.format(mp_path='equirect/stdparll'),
+            meridian_longitude=mp_xpath.format(mp_path='equirect/longcm'),
+            origin_latitude=mp_xpath.format(mp_path='equirect/latprjo'),
+            false_easting=mp_xpath.format(mp_path='equirect/feast'),
+            false_northing=mp_xpath.format(mp_path='equirect/fnorth'),
+        )
+        
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=mp_prop)] = mp_prop
+        self._data_map[mp_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(mp_prop)
 
 class FGDCMetadata():
     
-    def __init__(self, xmlfile):
+    parser_lookup = {'equirect' : EquirectangularFgdcParser,
+                     'polarst' : PolarStereoGraphicFgdcParser, 
+                     'orthogr':OrthographicFgdcParser}
+
+    def __init__(self, xmlfile, proj=None):
         self.xmlfile = xmlfile
-    
+        self.projection = proj
+        self._parse_projection()
+
+    def _parse_projection(self):
+        if self.projection is None:
+        # use the xml dom to parse and GetElementTagByName to determine which parser to load.
+            tree = ET.parse(self.xmlfile)
+            root = tree.getroot()
+            mapproj_nodes = tree.findall('./spref/horizsys/planar/mapproj')
+            if len(mapproj_nodes) > 1:
+                warnings.warn('More than one mapproj key found. Defaulting to the first entry in the XML template.')
+            mapproj_node = mapproj_nodes[0]
+            for child in mapproj_node.getchildren():
+                if child.tag == 'mapprojn':
+                    continue
+                else:
+                    self.projection = child.tag
+            if self.projection is None:
+                warnings.warn('Unknown projection. Please either include a projection section in the template or supply a projection name explicitly on construction.')
+
     @property
     def data(self):
         if not hasattr(self, '_data'):
+            Parser = self.parser_lookup[self.projection]
             with open(self.xmlfile, 'r') as metadata:
-                self._data = FgdcParser(metadata)
+                self._data = Parser(metadata)
         return self._data
     
     @property
