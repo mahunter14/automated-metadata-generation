@@ -32,7 +32,7 @@ def populate_projection_extension(item, obj):
         item.ext.projection.bbox = obj.bbox
     if obj.centroid:
         cnt = obj.centroid
-        item.ext.projection.centroid = {'lat':cnt.y, 'lon':cnt.y}
+        item.ext.projection.centroid = {'lat':cnt.y, 'lon':cnt.x}
     if obj.extent_y and obj.extent_x:
         item.ext.projection.shape = [obj.extent_y, obj.extent_x]
     if obj.geotransform:

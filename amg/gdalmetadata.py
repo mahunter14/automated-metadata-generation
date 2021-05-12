@@ -79,6 +79,10 @@ class GDALMetadata():
         return -self.geotransform[5]
     
     @property
+    def gsd(self):
+        return max(self.resolution_x, self.resolution_y)
+
+    @property
     def bands(self):
         if not hasattr(self, '_bands'):
             self._bands = []

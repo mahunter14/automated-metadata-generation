@@ -15,8 +15,8 @@ fgdc_to_osr_translation = {'equirect':[
                                 ('false_easting',osr.SRS_PP_FALSE_EASTING),
                                 ('false_northing',osr.SRS_PP_FALSE_NORTHING)],
                             'orthogr':[
-                                ('center_longitude',osr.SRS_PP_LONGITUDE_OF_CENTER),
-                                ('center_latitude',osr.SRS_PP_LATITUDE_OF_CENTER),
+                                ('center_longitude',osr.SRS_PP_CENTRAL_MERIDIAN),
+                                ('center_latitude',osr.SRS_PP_LATITUDE_OF_ORIGIN),
                                 ('false_easting',osr.SRS_PP_FALSE_EASTING),
                                 ('false_northing',osr.SRS_PP_FALSE_NORTHING)]
                             }
@@ -29,17 +29,17 @@ def lookup_projection_name(name):
         return 'equirect'
     elif 'polarstereographic' in name:
         return 'polarst'
+    elif 'orthographic' in name:
+        return 'orthogr'
 
 def populate_projection_information(template, obj):
     srs = obj.srs
-    
     # Get the projection name out of the SRS.
-    label_projection_name = srs.GetAttrValue('PROJCS')
+    label_projection_name = srs.GetAttrValue('PROJECTION')
     
     # Attempt to parse the projection name into a known projection name and get the fields to populate
     short_name = lookup_projection_name(label_projection_name)
     fields = fgdc_to_osr_translation.get(short_name, {})
-    
     # Update the template with the data from the projection
     template.projection['name'] = label_projection_name
     for field in fields:
@@ -80,6 +80,16 @@ def populate_digital_forms(template, obj):
     for df in dfs:
         df['network_resource'] = obj.href
     
+def populate_accuracies(template, obj):
+    if hasattr(obj, 'horizontal_accuracy_report'):
+        template.accuracy_horizontal = {'horizontal_accuracy_report': obj.horizontal_accuracy_report,
+                                        'horizontal_accuracy_value': str(obj.horizontal_accuracy_value),
+                                        'horizontal_accuracy_test_name': obj.horizontal_accuracy_test_name}
+    if hasattr(obj, 'vertical_accuracy_report'):
+        template.accuracy_vertical = {'vertical_accuracy_report': obj.vertical_accuracy_report,
+                                        'vertical_accuracy_value': str(obj.vertical_accuracy_value),
+                                        'vertical_accuracy_test_name': obj.vertical_accuracy_test_name}
+
 def to_fgdc(obj):
     template = None
     for s in obj.sources:
@@ -90,9 +100,15 @@ def to_fgdc(obj):
     populate_bounding_box(template, obj)
     populate_raster_info(template, obj)
     populate_digital_forms(template, obj)
-    
+    populate_accuracies(template, obj)
+
     template.planar_distance_units = 'meters'
     template.online_linkages = obj.doi
+
+    if hasattr(obj, 'title'):
+        template.title = obj.title
+    if hasattr(obj, 'processing_environment'):
+        template.processing_environment = obj.processing_environment
 
     # Add the point of contact section to the template.
     

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Lauren Adoram-Kershner</origin>
+        <origin>Benjamin Wheeler</origin>
+        <origin>Robin Fergason</origin>
+        <origin>Jason Laura</origin>
+        <pubdate>2021</pubdate>
+        <title>Context Camera Digital Terrain Model; {{leftimage}}, {{rightimage}}</title>
+        <geoform>raster digital data</geoform>
+        <onlink></onlink>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>This is an orthoimage generated from a digital terrain mdoel (DTM) extracted from Context Camera (CTX) stereo images from the Mars Reconnaissance Orbiter mission. This data product is the left image of a stereo image that has been orthorectified using a 20 meter/pixel DTM. Both the DTM and this orthoimage were generated using the Ames Stereo Pipeline software (https://github.com/NeoGeographyToolkit/StereoPipeline)and using automated methods.</abstract>
+      <purpose>This orthoimage was generated for general and public use, including scientific and engineering purposes.</purpose>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <sngdate>
+          <caldate>2021</caldate>
+        </sngdate>
+      </timeinfo>
+      <current>Publication date</current>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>None</update>
+    </status>
+    <spdom>
+      <bounding>
+        <westbc></westbc>
+        <eastbc></eastbc>
+        <northbc></northbc>
+        <southbc></southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>Context Camera</themekey>
+        <themekey>Mars Reconnaissance Orbiter</themekey>
+        <themekey>Digital Terrain Model (DTM)</themekey>
+        <themekey>Mars</themekey>
+        <themekey>Elevation</themekey>
+        <themekey>Topography</themekey>
+       </theme>
+      <place>
+        <placekt>http://science.nasa.gov/glossary</placekt>
+        <placekey>Mars</placekey>
+      </place>
+    </keywords>
+    <accconst>None</accconst>
+    <useconst>None</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntperp>
+          <cntper>Robin L Fergason</cntper>
+          <cntorg>U.S. Geological Survey, Southwest Region</cntorg>
+        </cntperp>
+        <cntpos>Supervisory Physical Scientist</cntpos>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>2255 North Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>928-556-7034</cntvoice>
+        <cntfax>928-556-7014</cntfax>
+        <cntemail>rfergason@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <datacred>Mars Reconnaissance Orbiter Context Camera</datacred>
+    <secinfo>
+      <secsys>None</secsys>
+      <secclass>Unclassified</secclass>
+      <sechandl>None</sechandl>
+    </secinfo>
+    <native></native>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>See Process Steps</attraccr>
+    </attracc>
+    <logic>See Process Steps</logic>
+    <complete>CTX dervied orthoimage selected from CTX image data collected during HiRISE stereo image acquisition.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>To assess the horizontal registration, measurements.</horizpar>
+        <qhorizpa>
+          <horizpav></horizpav>
+          <horizpae>This Context Camera DTM is horizontally displaced from the Mars Orbital Laser Altimeter (MOLA).</horizpae>
+        </qhorizpa>
+      </horizpa>
+      <vertacc>
+        <vertaccr>To assess the vertical differences, DTMs were simply differenced against the Ultimate MOLA point cloud.</vertaccr>
+        <qvertpa>
+          <vertaccv></vertaccv>
+          </qvertpa>
+      </vertacc>
+    </posacc>
+    <lineage>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Malin, M.C. et al.</origin>
+            <origin>Malin, M.C. et al., Context Camera Investigation on board the Mars Reconnaissance Orbiter, J. Geophys. Res. 112, E05S04 (2007). doi:10.1029/2006JE002808</origin>
+            <pubdate>2007</pubdate>
+            <title>Context Camera Investigation on board the Mars Reconnaissance Orbiter</title>
+            <geoform>document</geoform>
+            <onlink>https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2006JE002808%4010.1002/%28ISSN%292169-9100.MARSROM1</onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Planetary Data System (PDS) Reduced Data Record (RDR)</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>2006</begdate>
+              <enddate>2020</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>ground condition</srccurr>
+        </srctime>
+        <srccitea>CTX visible</srccitea>
+        <srccontr>https://pds-imaging.jpl.nasa.gov/volumes/mro.html</srccontr>
+      </srcinfo>
+      <procstep>
+        <procdesc>TBD</procdesc>
+        <procdate>2021</procdate>
+        <proccont>
+          <cntinfo>
+            <cntperp>
+              <cntper>Robin L Fergason</cntper>
+              <cntorg>U.S. Geological Survey, Southwest Region</cntorg>
+            </cntperp>
+            <cntpos>Supervisory Physical Scientist</cntpos>
+            <cntaddr>
+              <addrtype>mailing address</addrtype>
+              <address>2255 North Gemini Drive</address>
+              <city>Flagstaff</city>
+              <state>AZ</state>
+              <postal>86001</postal>
+              <country>US</country>
+            </cntaddr>
+            <cntvoice>928-556-7034</cntvoice>
+            <cntfax>928-556-7014</cntfax>
+            <cntemail>rfergason@usgs.gov</cntemail>
+          </cntinfo>
+        </proccont>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Raster</direct>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <planar>
+        <mapproj>
+        </mapproj>
+        <planci>
+          <plance>row and column</plance>
+          <plandu>meters</plandu>
+        </planci>
+      </planar>
+      <geodetic>
+        <horizdn>D_Mars_2000_Sphere</horizdn>
+        <ellips>Mars_2000_Sphere_IAU</ellips>
+        <semiaxis>3396190.0</semiaxis>
+        <denflat>1.0E-10</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>Trent M Hare</cntper>
+          <cntorg>U.S. Geological Survey, Southwest Region</cntorg>
+        </cntperp>
+        <cntpos>Cartographer</cntpos>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>2255 North Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>928-556-7126</cntvoice>
+        <cntemail>thare@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey (USGS), no warranty expressed or implied is made regarding the display or utility of the data for other purposes, nor on all computer systems, nor shall the act of distribution constitute any such warranty. Any use of trade, firm, or product names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
+</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>Digital Data</formname>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>{{basepath}}//{{ctxdtmuri}}/{{productid}}/</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>2021</metd>
+    <metc>
+      <cntinfo>
+        <cntperp>
+          <cntper>Robin L Fergason</cntper>
+          <cntorg>U.S. Geological Survey, Southwest Region</cntorg>
+        </cntperp>
+        <cntpos>Supervisory Physical Scientist</cntpos>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>2255 North Gemini Drive</address>
+          <city>Flagstaff</city>
+          <state>AZ</state>
+          <postal>86001</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>928-556-7034</cntvoice>
+        <cntfax>928-556-7014</cntfax>
+        <cntemail>rfergason@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+    <metstdv>FGDC-STD-001-1998</metstdv>
+  </metainfo>
+</metadata>

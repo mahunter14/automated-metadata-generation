@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 from gis_metadata.fgdc_metadata_parser import FgdcParser
-from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS
+from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS, ATTRIBUTES
 
 class BaseCustomParser(FgdcParser):
     def _init_data_map(self):
@@ -18,7 +18,18 @@ class BaseCustomParser(FgdcParser):
         planar_coordinate_representation_prop = 'planar_coordinate_representation'
         self._data_map[planar_coordinate_representation_prop] = 'spref/horizsys/planar/planci/plance'
         self._metadata_props.add(planar_coordinate_representation_prop)
+    
+        processing_prop = 'processing_environment'
+        self._data_map[processing_prop] = 'idinfo/native'
+        self._metadata_props.add(processing_prop)
 
+        # Add complex structured
+        self._add_geodetic_structure()
+        self._add_positional_accuracies()
+        self._add_processor_structure()
+        self._add_poc_address()
+
+    def _add_geodetic_structure(self):
         # Add GEODETIC structure to data map
         geodetic_definition = {
             'horizontal_datum':'{horizontal_datum}',
@@ -42,7 +53,53 @@ class BaseCustomParser(FgdcParser):
         
         # Let the parent validation logic know about the two new custom properties
         self._metadata_props.add(geodetic_prop)
+    
+    def _add_positional_accuracies(self):
+        # Add horizontal accuracy
+        horizontal_posacc_definition = {'horizontal_accuracy_report':'{horizontal_accuracy_report}',
+                                        'horizontal_accuracy_value':'{horizontal_accuracy_value}',
+                                        'horizontal_accuracy_test_name':'{horizontal_accuracy_test_name}'
+        }
+        horizontal_posacc_prop = 'accuracy_horizontal'
+        horizontal_posacc_xpath = 'dataqual/posacc/horizpa/{horizontal_posacc_path}'
 
+        self._data_structures[horizontal_posacc_prop] = format_xpaths(
+            horizontal_posacc_definition,
+            horizontal_accuracy_report=horizontal_posacc_xpath.format(horizontal_posacc_path='horizpar'),
+            horizontal_accuracy_value=horizontal_posacc_xpath.format(horizontal_posacc_path='qhorizpa/horizpav'),
+            horizontal_accuracy_test_name=horizontal_posacc_xpath.format(horizontal_posacc_path='qhorizpa/horizpae')
+        )
+
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=horizontal_posacc_prop)] = horizontal_posacc_prop
+        self._data_map[horizontal_posacc_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(horizontal_posacc_prop)
+
+        # Add vertical accuracy
+        vertical_posacc_definition = {'vertical_accuracy_report':'{vertical_accuracy_report}',
+                                        'vertical_accuracy_value':'{vertical_accuracy_value}',
+                                        'vertical_accuracy_test_name':'{vertical_accuracy_test_name}'
+        }
+        vertical_posacc_prop = 'accuracy_vertical'
+        vertical_posacc_xpath = 'dataqual/posacc/vertacc/{vertical_posacc_path}'
+
+        self._data_structures[vertical_posacc_prop] = format_xpaths(
+            vertical_posacc_definition,
+            vertical_accuracy_report=vertical_posacc_xpath.format(vertical_posacc_path='vertaccr'),
+            vertical_accuracy_value=vertical_posacc_xpath.format(vertical_posacc_path='qvertpa/vertaccv'),
+            vertical_accuracy_test_name=vertical_posacc_xpath.format(vertical_posacc_path='qvertpa/vertacce')
+        )
+
+        # Set the root and add getter/setter (parser/updater) to the data map
+        self._data_map['_{prop}_root'.format(prop=vertical_posacc_prop)] = vertical_posacc_prop
+        self._data_map[vertical_posacc_prop] = ParserProperty(self._parse_complex, self._update_complex)
+        
+        # Let the parent validation logic know about the two new custom properties
+        self._metadata_props.add(vertical_posacc_prop)       
+
+    def _add_processor_structure(self):
         # Add PROCESSOR structure
         contact_definition = {
             'name':'{name}',
@@ -84,10 +141,24 @@ class BaseCustomParser(FgdcParser):
         # Let the parent validation logic know about the two new custom properties
         self._metadata_props.add(processor_contact_prop)
 
+    def _add_poc_address(self):
         # Add PoC Address
         poc_prop = 'point_of_contact'
         poc_prop_xpath = 'idinfo/ptcontac/cntinfo/{poc_xpath}'
-        
+        contact_definition = {
+            'name':'{name}',
+            'organization':'{organization}',
+            'position':'{position}',
+            'address':'{address}',
+            'address_type':'{address_type}',
+            'city':'{city}',
+            'state':'{state}',
+            'postal':'{postal}',
+            'country':'{country}',
+            'phone':'{phone}',
+            'email':'{email}',
+            'fax':'{fax}'
+        }
         self._data_structures[poc_prop] = format_xpaths(  
             contact_definition,
             name=poc_prop_xpath.format(poc_xpath='cntperp/cntper'),
@@ -223,7 +294,7 @@ class FGDCMetadata():
     
     parser_lookup = {'equirect' : EquirectangularFgdcParser,
                      'polarst' : PolarStereoGraphicFgdcParser, 
-                     'orthogr':OrthographicFgdcParser}
+                     'orthogr': OrthographicFgdcParser}
 
     def __init__(self, xmlfile, proj=None):
         self.xmlfile = xmlfile
@@ -271,7 +342,7 @@ class FGDCMetadata():
         elif dates['type'] == 'single':
             return dates['values'][0]
         else:
-            print(dates)
+            print(dates)    
             raise ValueError('Driver needs to be updated to support a non-range date type')
     
     @property 
