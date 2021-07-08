@@ -1,6 +1,30 @@
+import glob
 import json
+import os
+from typing import Sequence
 
-class Provider():
+def find_file(*path: Sequence[str]) -> str:
+    """
+    Helper function to find a file along a given PATH.
+    """
+    found = find_files(*path)
+    if len(found) != 1:
+        return
+    return found[0]
+
+def find_files(*path: Sequence[str]) -> list:
+    return glob.glob(os.path.join(*path))
+
+def write_fgdc(path: str, fgdc_md):
+    with open(path, 'w') as f:
+        f.write(fgdc_md)
+    
+def write_stac(path, stac_md):
+    with open(path, 'w') as f:
+        json.dump(stac_md.to_dict(), f, indent=2)
+
+# TODO: Homogenize providers internal to amg
+"""class Provider():
     def __init__(self, name='',
                  role=None, 
                  url=None, 
@@ -27,7 +51,7 @@ class Provider():
         self.email = email
         self.phone = phone
 
-
+#TODO: HOmogenize band information
 class Band():
     def __init__(self, 
                  bid, 
@@ -54,4 +78,4 @@ class Band():
                  'reference_system':self.reference_system,
                  'step':self.step,
                  'unit':self.unit}
-        return json.dumps(attrs)
+        return json.dumps(attrs)"""

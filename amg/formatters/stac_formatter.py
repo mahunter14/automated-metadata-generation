@@ -1,6 +1,8 @@
 import datetime
+import json
 import os
 import string
+import sys
 
 import pystac
 from pystac.extensions.projection import ProjectionItemExt
@@ -53,6 +55,24 @@ def populate_assets(assets, obj):
 
     return asset_objs
 
+def check_geometry_size(footprint):
+    """
+    Excessive large geometries are problematic of AWS SQS and cause 
+    performance issues becuase they are stored in plain text in the JSON
+    blob.
+    """
+    geojson = footprint.__geo_interface__
+    as_str = json.dumps(geojson)
+    geomsize = len(as_str.encode('utf-8'))
+    n_iterations = 0
+    while geomsize > 125000:
+        footprint = footprint.simplify(0.01)
+        geojson = footprint.__geo_interface__
+        as_str = json.dumps(geojson)
+        geomsize = len(as_str.encode('utf-8'))
+        n_iterations += 1
+    return geojson
+
 def to_stac(obj, 
             extensions=[pystac.Extensions.PROJECTION,
                         pystac.Extensions.DATACUBE],
@@ -66,7 +86,11 @@ def to_stac(obj,
     if obj.start_date == obj.stop_date:
         dt = obj.start_date
         if not isinstance(dt, (datetime.datetime)):
-            dt = datetime.datetime(int(dt), 1, 1)
+            if len(dt) == 4:
+                dt = datetime.datetime(int(dt), 1, 1)
+            elif len(dt) == 8:  # Support ISO YYYYMMDD format
+                dts = dt[0:4], dt[4:6], dt[6:]
+                dt = datetime.datetime(*map(int, dts))                
     else:
         properties['start_datetime'] = obj.start_date
         properties['stop_datetime'] = obj.stop_date
@@ -101,8 +125,10 @@ def to_stac(obj,
             properties['providers'].append({'name':provider.contact_org,
                                             'roles':[]})"""
     
+    geometry = check_geometry_size(obj.footprint)
+
     item = pystac.Item(id=obj.productid, 
-                       geometry=obj.geometry, 
+                       geometry=geometry, 
                        bbox=obj.bbox,  
                        datetime=dt,
                        stac_extensions=[pystac.Extensions.PROJECTION,

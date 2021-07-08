@@ -1,0 +1,66 @@
+Object = IsisCube
+  Object = Core
+    StartByte   = 65537
+    Format      = Tile
+    TileSamples = 201
+    TileLines   = 128
+
+    Group = Dimensions
+      Samples = 6633
+      Lines   = 6559
+      Bands   = 1
+    End_Group
+
+    Group = Pixels
+      Type       = Real
+      ByteOrder  = Lsb
+      Base       = 0.0
+      Multiplier = 1.0
+    End_Group
+  End_Object
+
+  Group = BandBin
+    FilterName   = CLEAR
+    FilterNumber = 0
+    Center       = 0.611 <micrometers>
+    Width        = .44 <micrometers>
+  End_Group
+
+  Group = Mapping
+    ProjectionName       = Equirectangular
+    CenterLongitude      = 180.0
+    TargetName           = EUROPA
+    EquatorialRadius     = 1560800.0
+    PolarRadius          = 1560800.0
+    LatitudeType         = Planetocentric
+    LongitudeDirection   = PositiveEast
+    LongitudeDomain      = 360
+    MinimumLatitude      = -0.16188111371802
+    MaximumLatitude      = 16.692041262366
+    MinimumLongitude     = 132.00718917601
+    MaximumLongitude     = 149.0511152442
+    UpperLeftCornerX     = -1307390.0
+    UpperLeftCornerY     = 454720.0
+    PixelResolution      = 70.0 <meters/pixel>
+    Scale                = 389.15855664468 <pixels/degree>
+    CenterLatitude       = 0.0
+    CenterLatitudeRadius = 1560800.0
+  End_Group
+End_Object
+
+Object = Label
+  Bytes = 65536
+End_Object
+
+Object = History
+  Name      = IsisCube
+  StartByte = 179582325
+  Bytes     = 15946
+End_Object
+
+Object = Polygon
+  Name      = Footprint
+  StartByte = 176677032
+  Bytes     = 353192
+End_Object
+End

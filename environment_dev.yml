@@ -3,11 +3,15 @@ name: amg
 dependencies:
   - python<3.9
   - gdal
+  - geojson
   - jsonschema
   - pvl
   - psycopg2
+  - pyfakefs
   - pyproj
   - pystac
+  - pytest
+  = pytest-cov
   - pyyaml
   - shapely
   - sqlalchemy >= 1.4, < 1.5

@@ -32,6 +32,7 @@ def lookup_projection_name(name):
     elif 'orthographic' in name:
         return 'orthogr'
 
+
 def populate_projection_information(template, obj):
     srs = obj.srs
     # Get the projection name out of the SRS.
@@ -52,6 +53,10 @@ def populate_projection_information(template, obj):
         else:
             template.projection[field[0]] = str(srs.GetProjParm(field[1]))
 
+    if 'center_longitude' in template.projection.keys() and obj.longitude_domain == 360:
+        if float(template.projection['center_longitude']) > 180:
+            template.projection['center_longitude'] = str(float(template.projection['center_longitude']) - 360)
+
 def populate_bounding_box(template, obj):
 
     template.bounding_box = {'east':obj.bbox[2],
@@ -59,13 +64,25 @@ def populate_bounding_box(template, obj):
                          'west':obj.bbox[0],
                          'north':obj.bbox[3]}  
 
-    if obj.longitude_domain == 360:
+    if obj.longitude_domain == 360 and template.bounding_box['west'] > 180:
         # The data are in a 0-360 domain
-        template.bounding_box['west'] -= 180
-        template.bounding_box['east'] -= 180
+        template.bounding_box['west'] -= 360
+        template.bounding_box['east'] -= 360
 
     template.bounding_box = {k:str(v) for k,v in template.bounding_box.items()}
+
+def populate_geodetic(template, obj):
+    geo = template.geodetic
     
+    if geo['inverse_flattening'] == '':
+        inverse_flattening = obj.inverse_flattening
+        if inverse_flattening == 0:
+            inverse_flattening = 1e-6
+        geo['inverse_flattening'] = str(inverse_flattening)
+    
+    if geo['semi_major_axis'] == '':
+        geo['semi_major_axis'] = str(obj.semi_major_axis)
+
 def populate_raster_info(template, obj):
     template.raster_info = {'dimensions':'Pixel',
                              'column_count':obj.extent_x,
@@ -81,11 +98,11 @@ def populate_digital_forms(template, obj):
         df['network_resource'] = obj.href
     
 def populate_accuracies(template, obj):
-    if hasattr(obj, 'horizontal_accuracy_report'):
+    if getattr(obj, 'horizontal_accuracy_report', None):
         template.accuracy_horizontal = {'horizontal_accuracy_report': obj.horizontal_accuracy_report,
                                         'horizontal_accuracy_value': str(obj.horizontal_accuracy_value),
                                         'horizontal_accuracy_test_name': obj.horizontal_accuracy_test_name}
-    if hasattr(obj, 'vertical_accuracy_report'):
+    if getattr(obj, 'vertical_accuracy_report', None):
         template.accuracy_vertical = {'vertical_accuracy_report': obj.vertical_accuracy_report,
                                         'vertical_accuracy_value': str(obj.vertical_accuracy_value),
                                         'vertical_accuracy_test_name': obj.vertical_accuracy_test_name}
@@ -101,6 +118,7 @@ def to_fgdc(obj):
     populate_raster_info(template, obj)
     populate_digital_forms(template, obj)
     populate_accuracies(template, obj)
+    populate_geodetic(template, obj)
 
     template.planar_distance_units = 'meters'
     template.online_linkages = obj.doi

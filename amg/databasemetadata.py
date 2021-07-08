@@ -3,7 +3,7 @@ from shapely import wkt
 
 
 class DbMetadata():
-    def __init__(self, dbname, uri, sql='SELECT geom FROM images LIMIT 1;'):
+    def __init__(self, dbname, uri, sql='SELECT geom FROM images LIMIT 1;', engine=None):
         """
         This class connects to a database using SQLAlchemy, uses the sql kwarg
         to execute a query that returns a geometry, loads the geometry into
@@ -37,7 +37,10 @@ class DbMetadata():
         >>> db = DbMetadata('mars', 'postgresql://jay:abcde@autocnet.wr.usgs.gov:30001', sql=sql)
         >>> db.footprint
         """
-        self.engine = sqlalchemy.create_engine(f'{uri}/{dbname}')
+        if engine:
+            self.engine = engine
+        else:
+            self.engine = sqlalchemy.create_engine(f'{uri}/{dbname}')
         self.sql = sql
 
     @property

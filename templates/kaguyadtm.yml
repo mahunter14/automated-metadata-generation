@@ -1,0 +1,14 @@
+license: PDDL-1.0
+missions:
+  - 'Kaguya SELENE'
+instruments:
+  - Kaguya Terrain Camera (TC)
+doi: https://doi.org/10.5066/P9M5G3HI
+href: http://asc-mars.s3-website-us-west-2.amazonaws.com/ctx_dtms/{basename}
+longitude_domain: 360
+horizontal_accuracy_value: 50
+horizontal_accuracy_report: A priori Kaguya TC pointing is generally within plus or minus 50m of the LOLA datum.
+horizontal_accuracy_test_name: Best estimate
+vertical_accuracy_report: Vertical accuracy is assessed by comparing the offsets between the generated DTM and the LOLA point cloud.
+title: Kaguya Terrain Camera Digital Terrain Model; Moon; {image_a}, {image_b}
+processing_environment: Data generated using ISIS4.3.0, GDAL 3.1.4, Ames Stereo Pipeline

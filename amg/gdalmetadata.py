@@ -105,6 +105,14 @@ class GDALMetadata():
         return self.srs.GetProjParm(osr.SRS_PP_CENTRAL_MERIDIAN)        
         
     @property
+    def inverse_flattening(self):
+        return self.srs.GetInvFlattening()
+
+    @property 
+    def semi_major_axis(self):
+        return self.srs.GetSemiMajor()
+        
+    @property
     def bbox(self):
         """
         

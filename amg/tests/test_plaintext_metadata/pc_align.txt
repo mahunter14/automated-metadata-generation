@@ -1,0 +1,9 @@
+
+    --> Setting number of processing threads to: 4
+    Found input nodata value for DEM: -32768
+Max difference:       156.626
+Min difference:       -145.251
+Mean difference:      -3.42138
+StdDev of difference: 12.9565
+Median difference:    -1.56749
+Writing difference file: results_ba/G01_018668_2065_XN_26N188W__B21_017956_2065_XN_26N188W_ba-FINAL_geodiff-diff.csv

@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 from gis_metadata.fgdc_metadata_parser import FgdcParser
-from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS, ATTRIBUTES
+from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS
 
 class BaseCustomParser(FgdcParser):
     def _init_data_map(self):
@@ -103,7 +103,9 @@ class BaseCustomParser(FgdcParser):
         # Add PROCESSOR structure
         contact_definition = {
             'name':'{name}',
+            '_name':'{_name}',
             'organization':'{organization}',
+            '_organization':'{organization}',
             'position':'{position}',
             'address':'{address}',
             'address_type':'{address_type}',
@@ -121,7 +123,9 @@ class BaseCustomParser(FgdcParser):
         self._data_structures[processor_contact_prop] = format_xpaths(
             contact_definition,
             name=processor_contact_xpath.format(pc_xpath='cntperp/cntper'),
+            _name=processor_contact_xpath.format(pc_xpath='cntorgp/cntper'),
             organization=processor_contact_xpath.format(pc_xpath='cntperp/cntorg'),
+            _organization=processor_contact_xpath.format(pc_xpath='cntorgp/cntorg'),
             position=processor_contact_xpath.format(pc_xpath='cntpos'),
             address=processor_contact_xpath.format(pc_xpath='cntaddr/address'),
             address_type=processor_contact_xpath.format(pc_xpath='cntaddr/addrtype'),
@@ -332,7 +336,7 @@ class FGDCMetadata():
     
     @property    
     def description(self):
-        return self.data.abstract + self.data.purpose
+        return self.data.abstract + ' ' + self.data.purpose
 
     @property 
     def start_date(self):
@@ -363,7 +367,8 @@ class FGDCMetadata():
     def license(self):
         return self.data.dist_liability
     
-    @property 
+    #TODO: Add support for providers
+    """@property 
     def providers(self):
         providers = []
         distribution_provider = Provider(name=self.data.dist_contact_person,
@@ -385,4 +390,4 @@ class FGDCMetadata():
                                           contact_org=contact['organization'],
                                           email=contact['email']))
         
-        return providers
+        return providers"""

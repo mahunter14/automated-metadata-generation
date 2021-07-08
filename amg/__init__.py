@@ -26,7 +26,7 @@ class UnifiedMetadata():
         
         # If more than one source delivers a piece of metadata, alert the user.
         if len(values) > 1:
-            warnings.warn(f'Able to find the attribute in more than one data source. The user should get this value explicitly using the mapping kwarg. The values are: {values}.')
+            warnings.warn(f'Able to find the attribute "{attr}" in more than one data source. The user should get this value explicitly using the mapping kwarg. The values are: {values}.')
         elif len(values) == 0:
             warnings.warn(f'Unable to find the attribute "{attr}" in any data source.')
             return None

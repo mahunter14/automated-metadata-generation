@@ -24,3 +24,4 @@ class PcAlignMetadata():
     @property
     def vertical_accuracy_value(self):
         return self.median_error
+            
