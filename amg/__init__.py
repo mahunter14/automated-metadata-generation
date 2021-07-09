@@ -1,5 +1,7 @@
 import warnings
 
+__version__ = '0.2.0'
+
 class UnifiedMetadata():
     """
     This class is the primary means by which this library is intended

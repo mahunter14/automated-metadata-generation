@@ -3,6 +3,7 @@ This project takes metadata from disparate sources, homogenizes them, and then w
 
 [![Documentation Status](https://readthedocs.org/projects/automated-metadata-generation/badge/?version=latest)](https://automated-metadata-generation.readthedocs.io/en/latest/?badge=latest)
 
+![Build Status](https://github.com/USGS-Astrogeology/automated-metadata-generation/actions/workflows/continuous-integration.yml/badge.svg)
 
 ## Installation
 This is an alpha library, so the only installation is a development install. To install:
