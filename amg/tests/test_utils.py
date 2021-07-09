@@ -1,5 +1,6 @@
 import pytest
 import os
+import pathlib
 
 from amg import utils
 
@@ -12,7 +13,8 @@ def test_find_file(fs, n_images, expected):
     for i in range(n_images):
         fs.create_file(os.path.join(basepath, f'Image{i}.cub'))
     found = utils.find_file('/home/user/metadata', '*.cub')
-    assert found == expected
+    # pathlib homogenizes over OSes (win vs. unix style paths)
+    assert pathlib.Path(found) == pathlib.Path(expected)
 
 def test_find_files(fs):
     basepath = '/home/user/metadata'
