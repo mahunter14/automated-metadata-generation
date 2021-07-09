@@ -13,8 +13,13 @@ def test_find_file(fs, n_images, expected):
     for i in range(n_images):
         fs.create_file(os.path.join(basepath, f'Image{i}.cub'))
     found = utils.find_file('/home/user/metadata', '*.cub')
-    # pathlib homogenizes over OSes (win vs. unix style paths)
-    assert pathlib.Path(found) == pathlib.Path(expected)
+
+    if expected == None:
+        # No path homogenization needed when return is None
+        assert found == expected
+    else:
+        # pathlib homogenizes over OSes (win vs. unix style paths)
+        assert pathlib.Path(found) == pathlib.Path(expected)
 
 def test_find_files(fs):
     basepath = '/home/user/metadata'
