@@ -9,6 +9,79 @@ gdal.UseExceptions()
 osr.UseExceptions()
 
 class GDALMetadata():
+    """
+    This class wraps GDAL accessible data files and makes
+    homogenizes access to metadata elements.
+
+    Parameters
+    ----------
+    datafile : str
+               The path to the datafile to read
+
+    Attributes
+    ----------
+    data : obj
+           THe GDAL object returned by a gdal.Open call
+
+    productid : str
+                The name of the product without file extension
+
+    srs : obj
+          The spatial reference objected through which spatial reference
+          metadata are accessible
+
+    crs : obj
+          A pyproj projection object
+
+    projstr : str
+              A proj4 projection string
+
+    projjson : dict
+               The projection string in JSON format
+
+    wkt2 : str
+           The projection string in wkt2 format
+
+    epsg : int
+           THe inferred EPSG code for the data. This is often
+           incorrect for planetary data.
+
+    extent_x : int
+               The dataset size in the x direction
+    
+    extent_y : int
+               THe dataset size in the y direction
+
+    extent_z : int
+               THe number of bands or dataset size in the z direction
+
+    geotransform : list
+                   The six element affine geotransformation
+
+    resolution_x : float
+                   The pixel resolution in the x direction
+
+    resolution_y : float
+                   The pixel resolution in the y direction
+
+    gsd : float
+          The reported ground sample distance
+
+    bands : list
+            of band objects that contain band dependent metadata, e.g., min/max data values
+
+    longitude_origin : float
+                       The projection lon origin
+
+    inverse_flattening : float
+                         The ellipsoid inverse flattening.
+    
+    semi_major_axis : float
+                      The semi-major axis of the body in GDAL reported units.
+
+    bbox : list
+           Four element bounding box coordinates
+    """
     def __init__(self, datafile):
         self.datafile = datafile
     
@@ -114,9 +187,6 @@ class GDALMetadata():
         
     @property
     def bbox(self):
-        """
-        
-        """
         bbox = []
         gt = self.geotransform
         for x,y in [(0,0),(self.extent_x, self.extent_y)]:

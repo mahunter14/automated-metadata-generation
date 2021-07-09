@@ -23,6 +23,7 @@ fgdc_to_osr_translation = {'equirect':[
 
 def lookup_projection_name(name):
     """
+    Simple dict lookup to take an input name an return a homogenized name.
     """
     name = name.lower()
     if 'equirectangular' in name:
@@ -34,6 +35,18 @@ def lookup_projection_name(name):
 
 
 def populate_projection_information(template, obj):
+    """
+    Parse projection information from a UnifiedMetadata obj into an FGDC template.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
+
     srs = obj.srs
     # Get the projection name out of the SRS.
     label_projection_name = srs.GetAttrValue('PROJECTION')
@@ -58,6 +71,17 @@ def populate_projection_information(template, obj):
             template.projection['center_longitude'] = str(float(template.projection['center_longitude']) - 360)
 
 def populate_bounding_box(template, obj):
+    """
+    Parse bounding box information from a UnifiedMetadata obj into an FGDC template.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
 
     template.bounding_box = {'east':obj.bbox[2],
                          'south':obj.bbox[1],
@@ -72,6 +96,17 @@ def populate_bounding_box(template, obj):
     template.bounding_box = {k:str(v) for k,v in template.bounding_box.items()}
 
 def populate_geodetic(template, obj):
+    """
+    Parse ellipsoid information from a UnifiedMetadata obj into an FGDC template.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
     geo = template.geodetic
     
     if geo['inverse_flattening'] == '':
@@ -84,6 +119,17 @@ def populate_geodetic(template, obj):
         geo['semi_major_axis'] = str(obj.semi_major_axis)
 
 def populate_raster_info(template, obj):
+    """
+    Parse raster metadata information from a UnifiedMetadata obj into an FGDC template.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
     template.raster_info = {'dimensions':'Pixel',
                              'column_count':obj.extent_x,
                              'row_count':obj.extent_y,
@@ -93,11 +139,33 @@ def populate_raster_info(template, obj):
     template.raster_info = {k:str(v) for k,v in template.raster_info.items()}
     
 def populate_digital_forms(template, obj):
+    """
+    Populate the data HREF.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
     dfs = template.digital_forms
     for df in dfs:
         df['network_resource'] = obj.href
     
 def populate_accuracies(template, obj):
+    """
+    Populate data accuracy information from a UnifiedMetadata obj into an FGDC template.
+
+    Parameters
+    ----------
+    template : obj
+               an FGDC metadata template (FGDCMetadata.data)
+
+    obj : obj
+          A UnifiedMetadata object
+    """
     if getattr(obj, 'horizontal_accuracy_report', None):
         template.accuracy_horizontal = {'horizontal_accuracy_report': obj.horizontal_accuracy_report,
                                         'horizontal_accuracy_value': str(obj.horizontal_accuracy_value),
@@ -108,6 +176,20 @@ def populate_accuracies(template, obj):
                                         'vertical_accuracy_test_name': obj.vertical_accuracy_test_name}
 
 def to_fgdc(obj):
+    """
+    This is the priamry function to call in the module. This function takes a UnifiedMetadata object
+    and creates a serialized FGDC metadata record.
+
+    Parameters
+    ----------
+    obj : obj
+          A amg.UnifiedMetadata class instance
+
+    Returns
+    -------
+     : str
+       A string encoded FGDC compliant XML metadata file
+    """
     template = None
     for s in obj.sources:
         if isinstance(s, FGDCMetadata):

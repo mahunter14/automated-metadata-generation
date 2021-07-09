@@ -1,4 +1,33 @@
 class PcAlignMetadata():
+    """
+    This class supports metadata as written by the
+    NASA Ames Stereo Pipeline pc_align application.
+
+    Parameters
+    ----------
+    datafile : str
+               The path to the input data
+
+    Attributes
+    ----------
+    data : list
+           of lines read from the plaintext file
+
+    vertical_accuracy_test_name : str
+                                  The name or description of the test 
+                                  used to assess vertical accuracy
+
+    median_error : float
+                   The median offset between the DTM and whatever 
+                   ground source was used by pc_align
+
+    vertical_accuracy_value : float
+                              The value to be reported for the vertical 
+                              accuracy of this metadata object. This
+                              is currently the median, but this class
+                              can be extended to support any value 
+                              reported by pc_align.                            
+    """
     def __init__(self, datafile):
         self.datafile=datafile
 

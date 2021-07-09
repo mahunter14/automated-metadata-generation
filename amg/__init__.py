@@ -1,6 +1,34 @@
 import warnings
 
 class UnifiedMetadata():
+    """
+    This class is the primary means by which this library is intended
+    to be used. Specifically, this class takes a number of other
+    metadata objects from disparate sources and seeks to homogenize 
+    the input data into a single container.
+
+    This class overrides attribute lookups (__getattr__) and uses the
+    following logic in order to find a given attribute:
+
+    1. If the attribute is provided in the overrides dict, return the value
+    for the given key.
+
+    2. If the attribute is in the mappings dict, the user has specified that
+    the value should come from a specific source. Perform the attribute lookup
+    on that source.
+    
+    3. Iterate over each source in the input sources list and build a dict
+    of found attributes where the key is source and the value is the returned value.
+    For example: {'SourceA':'foo', 'SourceB':'foo', 'SourceC':'bar}.
+    
+    4. If the previous step returns more than one instance of the source, warn the user
+    and request that a mapping be provided to disambiguate the metadata source.
+    
+    5. If the attribute can not be found, warn the user.
+    
+    6. Return the attribute requested to the caller.
+    """
+
     def __init__(self, sources, overrides={}, mappings={}):
         self.sources = sources
         self.overrides = overrides            

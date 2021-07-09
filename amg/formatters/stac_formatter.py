@@ -8,6 +8,17 @@ import pystac
 from pystac.extensions.projection import ProjectionItemExt
 
 def populate_datacube_extension(item, obj):
+    """
+    Populate the cube extension in a STAC metadata record.
+
+    Parameters
+    ----------
+    item : obj
+           The STAC metadata container
+
+    obj : obj
+          An amg.UnifiedMetadata object
+    """
     xdim = {'type':'spatial',
                   'axis':'x',
                   'extent':[obj.bbox[0], obj.bbox[2]],}
@@ -20,6 +31,17 @@ def populate_datacube_extension(item, obj):
                                           'y':ydim}
 
 def populate_projection_extension(item, obj):
+    """
+    Populate the projection extension in a STAC metadata record.
+
+    Parameters
+    ----------
+    item : obj
+           The STAC metadata container
+
+    obj : obj
+          An amg.UnifiedMetadata object
+    """
     item.ext.projection.epsg = obj.epsg
     
     if obj.wkt2:
@@ -41,6 +63,17 @@ def populate_projection_extension(item, obj):
         item.ext.projection.transform = obj.geotransform
 
 def populate_assets(assets, obj):
+    """
+    Populate the assets in a STAC metadata record.
+
+    Parameters
+    ----------
+    item : obj
+           The STAC metadata container
+
+    obj : obj
+          An amg.UnifiedMetadata object
+    """
     asset_objs = {}
     for asset in assets:
         for key, value in asset.items():
@@ -57,9 +90,23 @@ def populate_assets(assets, obj):
 
 def check_geometry_size(footprint):
     """
-    Excessive large geometries are problematic of AWS SQS and cause 
+    Excessive large geometries are problematic of AWS SQS (max size 256kb) and cause 
     performance issues becuase they are stored in plain text in the JSON
     blob.
+
+    This func reads the geojson and applies a simple heuristic to reduce the
+    footprint size through simplification. With each iteration, the geometry
+    is simplified by 0.01 degrees.
+    
+    Parameters
+    ----------
+    footprint : obj
+                A shapely Polygon or MultiPolygon
+
+    Returns
+    -------
+    geojson : dict
+              A geojson representation of the geometry
     """
     geojson = footprint.__geo_interface__
     as_str = json.dumps(geojson)
@@ -79,6 +126,26 @@ def to_stac(obj,
             assets={},
             collection=None):    
     
+    """
+    This is the primary callable in this module. This function takes an
+    amg.UnifiedMetadata object and returns a STAC compliant metadata file.
+    
+    Parameters
+    ----------
+    obj : obj
+          A UnifiedMetadata object
+    
+    extensions : list
+                 of PySTAC supported extensions
+
+    assets : dict
+             A STAC-spec compliant dictionary of assets associated with this 
+             metadata record
+
+    collection : str
+                 The collection id that this record is associated with
+    """
+
     properties = {}
     
     # Base item

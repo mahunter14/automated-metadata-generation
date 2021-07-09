@@ -5,7 +5,25 @@ from typing import Sequence
 
 def find_file(*path: Sequence[str]) -> str:
     """
-    Helper function to find a file along a given PATH.
+    Find a single file along a given PATH.
+
+    Parameters
+    ----------
+    path : list
+           of strings defining a path and any search
+           wildcards
+
+    Returns
+    -------
+    found : str
+            The path of the file found
+
+    Examples
+    --------
+    >>> paths = ['/home/user/', '*.txt']
+    >>> found = find_file(paths)
+    >>> print(found)
+    >>> myfile.txt
     """
     found = find_files(*path)
     if len(found) != 1:
@@ -13,13 +31,50 @@ def find_file(*path: Sequence[str]) -> str:
     return found[0]
 
 def find_files(*path: Sequence[str]) -> list:
+    """
+    Find a single file along a given PATH.
+
+    Parameters
+    ----------
+    path : list
+           of strings defining a path and any search
+           wildcards
+
+    Returns
+    -------
+    found : list
+            of files found at the given path matching the search string
+            """
     return glob.glob(os.path.join(*path))
 
-def write_fgdc(path: str, fgdc_md):
+def write_fgdc(path: str, fgdc_md: str):
+    """
+    Write an fgdc metadata string to a given path.
+
+    Parameters
+    ----------
+    path : str
+           The path to write the file to
+    
+    fgdc_md : str
+              The serialized fgdc metadata
+    """
     with open(path, 'w') as f:
         f.write(fgdc_md)
     
-def write_stac(path, stac_md):
+def write_stac(path: str, stac_md: dict):
+    """
+    Write a stac metadata dictioanry to a path
+    using json dump and pretty formatting (indentation).
+
+    Parameters
+    ----------
+    path : str
+           THe path to write the file to
+
+    stac_md : dict
+              A json serializable stac metadata dict
+    """
     with open(path, 'w') as f:
         json.dump(stac_md.to_dict(), f, indent=2)
 
@@ -49,10 +104,14 @@ def write_stac(path, stac_md):
         self.contact_org = contact_org
         self.contact_person = contact_person
         self.email = email
-        self.phone = phone
+        self.phone = phone"""
 
-#TODO: HOmogenize band information
+#TODO: Hmogenize band information
 class Band():
+    """
+    A data container for storing band dependent metadata.
+    """
+
     def __init__(self, 
                  bid, 
                  extent_x=None, 
@@ -78,4 +137,4 @@ class Band():
                  'reference_system':self.reference_system,
                  'step':self.step,
                  'unit':self.unit}
-        return json.dumps(attrs)"""
+        return json.dumps(attrs)

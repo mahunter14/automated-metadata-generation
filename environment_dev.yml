@@ -14,7 +14,9 @@ dependencies:
   - pytest-cov
   - pyyaml
   - shapely
+  - sphinx
   - sqlalchemy >= 1.4, < 1.5
   - pip
+  - pyaml
   - pip:
       - gis-metadata-parser

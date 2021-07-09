@@ -1,5 +1,4 @@
 import warnings
-from frozendict import frozendict
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
@@ -7,6 +6,17 @@ from gis_metadata.fgdc_metadata_parser import FgdcParser
 from gis_metadata.utils import format_xpaths, ParserProperty, COMPLEX_DEFINITIONS, CONTACTS
 
 class BaseCustomParser(FgdcParser):
+    """
+    A mix-in class that extends the base gis_metadata 
+    FgdcParser class to cover more of the FGDC specification.
+
+    This class should not be instantiated independently. Instead, 
+    one should use the FGDCMetadata class. When a projection is 
+    infered from the input xml file or specified, the projection
+    class (e.g., FGDCMetadata.data) will contain all of these 
+    extensions to the FgdcParser.
+    """
+
     def _init_data_map(self):
         super(BaseCustomParser, self)._init_data_map()
         
@@ -192,7 +202,10 @@ class BaseCustomParser(FgdcParser):
         return b'\n'.join([s for s in dom_string.splitlines() if s.strip()])
 
 class OrthographicFgdcParser(BaseCustomParser):
-    
+    """
+    A custom projection class to support orthographic projections 
+    in FGDC metadata.
+    """     
     def _init_data_map(self):
         super(OrthographicFgdcParser, self)._init_data_map()
         
@@ -225,7 +238,10 @@ class OrthographicFgdcParser(BaseCustomParser):
         self._metadata_props.add(mp_prop)
 
 class PolarStereoGraphicFgdcParser(BaseCustomParser):
-    
+    """
+    A custom projection class to support polar stereographic projections 
+    in FGDC metadata.
+    """  
     def _init_data_map(self):
         super(PolarStereoGraphicFgdcParser, self)._init_data_map()
 
@@ -260,7 +276,10 @@ class PolarStereoGraphicFgdcParser(BaseCustomParser):
         self._metadata_props.add(mp_prop)
 
 class EquirectangularFgdcParser(BaseCustomParser):
-    
+    """
+    A custom projection class to support equirectangular projections 
+    in FGDC metadata.
+    """
     def _init_data_map(self):
         super(EquirectangularFgdcParser, self)._init_data_map()
 
@@ -295,7 +314,50 @@ class EquirectangularFgdcParser(BaseCustomParser):
         self._metadata_props.add(mp_prop)
 
 class FGDCMetadata():
+    """
+    A base container for parsing FGDC metadata. This class
+    relies heavily on the gis_metadata project for parsing.
+
+    The class attempts to dynamically generate the projection
+    information from either the input data or a user supplied
+    projection. 
+
+    Parameters
+    ----------
+    xmlfile : str
+              The path to the FGDC metadata file or tempalte
+
+    proj : ['equirect', 'polarst', 'orthogr']
+           An optional projection definition that injects the 
+           appropriate projection class (<mapprojn>) into the
+           FGDC template.
+
+    Properties
+    ----------
+    data : obj
+           The projection specific object containing all of the
+           metadata. Data are accessible via dot notation.
     
+    title : str
+            The title of the data product.
+
+    description : str
+                  The description (abstract + purpose) of the data product.
+
+    start_date : str
+                 The starting date the data were collected or generated
+
+    stop_date : str
+                The ending date at which time data collection stopped.
+
+    updated_date : str
+                   The reported last update of the data
+
+    license : str
+              The license or license disclaimer associated with the data
+           
+    """
+
     parser_lookup = {'equirect' : EquirectangularFgdcParser,
                      'polarst' : PolarStereoGraphicFgdcParser, 
                      'orthogr': OrthographicFgdcParser}
@@ -306,6 +368,14 @@ class FGDCMetadata():
         self._parse_projection()
 
     def _parse_projection(self):
+        """
+        If a projection is not explicitly defined, attempt
+        to parse the projection from the input xmlfile. This
+        method steps through the xml, looking for the <mapproj>
+        key and then dynamically loads an appropriate projection
+        class (above) if available.
+        """
+
         if self.projection is None:
         # use the xml dom to parse and GetElementTagByName to determine which parser to load.
             tree = ET.parse(self.xmlfile)
