@@ -5,6 +5,6 @@ The :mod:`formatters.fgdc_formatter` file contains logic for formatting a Unifie
 
 .. versionadded:: 0.1.0
 
-.. automodule:: amg.formatter.fgdc_formatter
+.. automodule:: amg.formatters.fgdc_formatter
    :synopsis:
    :members:

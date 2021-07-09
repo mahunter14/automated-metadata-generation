@@ -5,6 +5,6 @@ The :mod:`formatters.stac_formatter` file contains logic for formatting a Unifie
 
 .. versionadded:: 0.1.0
 
-.. automodule:: amg.formatter.stac_formatter
+.. automodule:: amg.formatters.stac_formatter
    :synopsis:
    :members:
