@@ -9,7 +9,6 @@ API
 
    library/index
 
-
 Indices and tables
 ==================
 

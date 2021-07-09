@@ -1,6 +1,9 @@
 # Automated Metadata Generation (amg)
 This project takes metadata from disparate sources, homogenizes them, and then writes out to common metadata formats. Right now, STAC and FGDC metadata writes are supported.
 
+[![Documentation Status](https://readthedocs.org/projects/automated-metadata-generation/badge/?version=latest)](https://automated-metadata-generation.readthedocs.io/en/latest/?badge=latest)
+
+
 ## Installation
 This is an alpha library, so the only installation is a development install. To install:
 
@@ -9,6 +12,11 @@ This is an alpha library, so the only installation is a development install. To 
 - and create a conda environment using `conda create -n amg -f environment.yml`
 - then activate the conda environment `conda activate amg`
 - finally, install this library `python setup.py develop`
+
+## Development Installation
+Is identical to the standard installation except the dev environment.yml should be used in the third step:
+
+`conda create -n amg -f environment-dev.yml`
 
 ## Example usage:
 
@@ -22,10 +30,6 @@ from amg.fgdcmetadata import FGDCMetadata
 from amg.gdalmetadata import GDALMetadata
 from amg.formatters.stac_formatter import to_stac
 from amg import UnifiedMetadata
-
-# This is require for verification / validation using remote resources when inside the network
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
 fgdc = FGDCMetadata('sample2.xml')
 gd = GDALMetadata('s0413742778.equi.cub')
