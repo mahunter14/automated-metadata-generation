@@ -4,6 +4,7 @@ __version__ = '0.2.0'
 
 class UnifiedMetadata():
     """
+
     This class is the primary means by which this library is intended
     to be used. Specifically, this class takes a number of other
     metadata objects from disparate sources and seeks to homogenize 
@@ -29,6 +30,16 @@ class UnifiedMetadata():
     5. If the attribute can not be found, warn the user.
     
     6. Return the attribute requested to the caller.
+
+    Parameters
+    ----------
+    overrides : dict
+                in the form {'key':'value'}
+
+    mappings : dict
+               in the form {'key':class}, where class is one of the class definitions passed
+               in the sources list (e.g., IsisMetadata or GDALMetadata)
+
     """
 
     def __init__(self, sources, overrides={}, mappings={}):

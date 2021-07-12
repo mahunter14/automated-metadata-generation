@@ -1,5 +1,7 @@
+.. _code_plaintextmetadata:
+
 :mod:`plaintextmetadata` --- Plain Text Metadata
-=============================================================
+================================================
 
 The :mod:`plaintextmetadata` file contains a generic metadata parser for plain text formatted inputs
 

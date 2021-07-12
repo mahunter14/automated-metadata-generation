@@ -1,3 +1,5 @@
+.. _code_isismetadata:
+
 :mod:`isismetadata` --- ISIS File Metadata
 =============================================================
 

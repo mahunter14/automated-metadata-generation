@@ -1,3 +1,5 @@
+.. _supported_properties:
+
 Supported Properties
 ====================
 The following are the properties supported by metadata containers in this library.
