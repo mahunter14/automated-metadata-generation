@@ -1,4 +1,5 @@
 from osgeo import osr
+from urllib.parse import urljoin
 osr.UseExceptions()
 
 from amg.fgdcmetadata import FGDCMetadata
@@ -152,7 +153,7 @@ def populate_digital_forms(template, obj):
     """
     dfs = template.digital_forms
     for df in dfs:
-        df['network_resource'] = obj.href
+        df['network_resource'] = urljoin(obj.href, obj.id)
     
 def populate_accuracies(template, obj):
     """
