@@ -172,8 +172,8 @@
             <geodetic>
                 <horizdn>0</horizdn>
                 <ellips>Europa</ellips>
-                <semiaxis>1560.8</semiaxis>
-                <denflat>1.0</denflat>
+                <semiaxis>1560800.0</semiaxis>
+                <denflat>1.0e+10</denflat>
             </geodetic>
         </horizsys>
     </spref>

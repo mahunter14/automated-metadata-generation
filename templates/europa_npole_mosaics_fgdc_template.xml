@@ -179,11 +179,11 @@ Additional details are provided in Bland et al. 2021.</procdesc>
       <geodetic>
         <horizdn>0</horizdn>
         <ellips>Europa</ellips>
-        <semiaxis>1560.8</semiaxis>
-        <denflat>1.0</denflat>
+        <semiaxis>1560800.0</semiaxis>
+        <denflat>1.0e+10</denflat>
       </geodetic>
     </horizsys>
-  </spref>
+  </spref>1
   <distinfo>
     <distrib>
       <cntinfo>
@@ -248,4 +248,3 @@ Additional details are provided in Bland et al. 2021.</procdesc>
     <metstdv>FGDC-STD-001-1998</metstdv>
   </metainfo>
 </metadata>
-
