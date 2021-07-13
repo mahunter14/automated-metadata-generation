@@ -5,7 +5,6 @@ import string
 import sys
 
 import pystac
-from pystac.extensions.projection import ProjectionItemExt
 
 def populate_datacube_extension(item, obj):
     """
@@ -121,8 +120,8 @@ def check_geometry_size(footprint):
     return geojson
 
 def to_stac(obj, 
-            extensions=[pystac.Extensions.PROJECTION,
-                        pystac.Extensions.DATACUBE],
+            extensions=["https://stac-extensions.github.io/projection/v1.0.0/schema.json",
+                        "https://stac-extensions.github.io/datacube/v1.0.0/schema.json"],
             assets={},
             collection=None):    
     
@@ -198,8 +197,7 @@ def to_stac(obj,
                        geometry=geometry, 
                        bbox=obj.bbox,  
                        datetime=dt,
-                       stac_extensions=[pystac.Extensions.PROJECTION,
-                                       pystac.Extensions.DATACUBE],
+                       stac_extensions=extensions,
                        href=os.path.join(obj.href,f'{obj.productid}.json'),
                        collection=collection,
                        properties=properties)
