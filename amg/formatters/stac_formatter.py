@@ -61,6 +61,9 @@ def populate_projection_extension(item, obj):
     if obj.geotransform:
         item.ext.projection.transform = obj.geotransform
 
+def populate_ssys_extension(item, obj):
+        item.properties["ssys:targets"] = obj.targets
+
 def populate_assets(assets, obj):
     """
     Populate the assets in a STAC metadata record.
@@ -207,7 +210,9 @@ def to_stac(obj,
     
     # Populate the data cube extension.
     populate_datacube_extension(item, obj)
-    
+   
+    populate_ssys_extension(item, obj)
+
     #Populate the assets in the item using the passed assets dict
     assets = populate_assets(assets, obj)
     item.assets = assets
