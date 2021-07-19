@@ -114,12 +114,16 @@ class GenericSQLite():
         con = sqlite3.connect(self.datafile)
         
         cursor = con.cursor()        
-        res = cursor.execute(sql)
+        cursor.execute(sql)
         
         self.data = cursor.fetchall()
         if len(self.data) > 1:
             raise ValueError (f'Expecting the query to return a single row, mappable to a single file for metadata generation. Returned {len(self.data)} records.')
-        
+        elif len(self.data) == 0:
+            warnings.warn('No metadata record found using the given query in the database.')
+            self.data = {}
+            return
+            
         original_names = [description[0] for description in cursor.description]
         
         names = []
