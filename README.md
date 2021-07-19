@@ -5,6 +5,9 @@ This project takes metadata from disparate sources, homogenizes them, and then w
 
 ![Build Status](https://github.com/USGS-Astrogeology/automated-metadata-generation/actions/workflows/continuous_integration.yml/badge.svg)
 
+[![codecov](https://codecov.io/gh/USGS-Astrogeology/automated-metadata-generation/branch/master/graph/badge.svg?token=8IX48PO0PI)](https://codecov.io/gh/USGS-Astrogeology/automated-metadata-generation)
+
+
 ## Installation
 This is an alpha library, so the only installation is a development install. To install:
 
