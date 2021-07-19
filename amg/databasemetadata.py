@@ -1,3 +1,5 @@
+import sqlite3
+
 import sqlalchemy
 from shapely import wkt
 
@@ -84,3 +86,50 @@ class DbMetadata():
     @property
     def centroid(self):
         return self.footprint.centroid
+
+
+class GenericSQLite():
+    
+    """
+    A generic interface to a SQLite database. This class expects to be passed
+    an SQL query that returns a single row. The columns on the rows are named
+    using introspection and the class data attribute is a dict where the keys
+    are the column names and the rows are the column values. The column_remapper
+    is used to homogenize the column names to the standard amg names.
+
+    Parameters
+    ----------
+    datafile : str
+               The path to the sqlite database
+
+    sql : str
+          An SQL query that returns a single row / record
+
+    column_remapper : dict
+                      Of DbName:amg_name. See the amg docs for standard 
+                      property names
+    """
+    def __init__(self, datafile, sql, column_remapper={}):
+        self.datafile = datafile
+        con = sqlite3.connect(self.datafile)
+        
+        cursor = con.cursor()        
+        res = cursor.execute(sql)
+        
+        self.data = cursor.fetchall()
+        if len(self.data) > 1:
+            raise ValueError (f'Expecting the query to return a single row, mappable to a single file for metadata generation. Returned {len(self.data)} records.')
+        
+        original_names = [description[0] for description in cursor.description]
+        
+        names = []
+        for name in original_names:
+            if column_remapper.get(name):
+                names.append(column_remapper[name])
+            else:
+                names.append(name)        
+        
+        self.data = dict(zip(names, self.data[0]))
+        
+        for k, v in self.data.items():
+            setattr(self, k, v)
