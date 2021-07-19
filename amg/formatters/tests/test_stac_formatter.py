@@ -28,7 +28,6 @@ def test_basic_stac(umd):
     # Check property setting
     for key in ['title', 'description', 'missions', 'gsd', 'license']:
         assert item.properties[key] == key
-    
     assert item.properties['instruments'] == ['instruments']
 
     # Check datetime handling
