@@ -20,6 +20,9 @@ def populate_datacube_extension(item, obj):
     obj : obj
           An amg.UnifiedMetadata object
     """
+    from pystac.extensions.datacube import DatacubeExtension
+
+    item = DatacubeExtension.ext(item)
     xdim = {'type':'spatial',
                   'axis':'x',
                   'extent':[obj.bbox[0], obj.bbox[2]],}
@@ -43,40 +46,47 @@ def populate_projection_extension(item, obj):
     obj : obj
           An amg.UnifiedMetadata object
     """
-    item.ext.projection.epsg = obj.epsg
+    from pystac.extensions.projection import ProjectionExtension
+
+    item = ProjectionExtension.ext(item)
+
+    item.epsg = obj.epsg
     
     if obj.wkt2:
-        item.ext.projection.wkt2 = obj.wkt2
+        item.wkt2 = obj.wkt2
     if obj.projjson:
-        item.ext.projection.projjson = obj.projjson
+        item.projjson = obj.projjson
     if obj.geometry:
         # TODO: Fix geom to be valid
         #item.ext.projection.geometry = obj.geometry
         pass
     if obj.bbox:
-        item.ext.projection.bbox = obj.bbox
+        item.bbox = obj.bbox
     if obj.centroid:
         cnt = obj.centroid
-        item.ext.projection.centroid = {'lat':cnt.y, 'lon':cnt.x}
+        item.centroid = {'lat':cnt.y, 'lon':cnt.x}
     if obj.extent_y and obj.extent_x:
-        item.ext.projection.shape = [obj.extent_y, obj.extent_x]
+        item.shape = [obj.extent_y, obj.extent_x]
     if obj.geotransform:
-        item.ext.projection.transform = obj.geotransform
+        item.transform = obj.geotransform
 
 def populate_ssys_extension(item, obj):
         item.properties["ssys:targets"] = obj.targets
 
 def populate_viewgeometry_extension(item, obj):
+    from pystac.extensions.view import ViewExtension
+    item = ViewExtension.ext(item)
+    
     if obj.emission_angle:
-        item.ext.view.off_nadir = obj.emission_angle
+        item.off_nadir = obj.emission_angle
     if obj.incidence_angle:
-        item.ext.view.incidenace_angle = obj.incidence_angle
+        item.incidenace_angle = obj.incidence_angle
     if obj.north_azimuth:
-        item.ext.view.azimuth = obj.north_azimuth
+        item.azimuth = obj.north_azimuth
     if obj.subsolar_ground_azimuth:
-        item.ext.view.sun_azimuth = obj.subsolar_ground_azimuth
+        item.sun_azimuth = obj.subsolar_ground_azimuth
     if obj.local_incidence_angle:
-        item.ext.view.sun_elevation = obj.local_incidence_angle
+        item.sun_elevation = obj.local_incidence_angle
 
 def populate_assets(assets, obj):
     """
@@ -148,6 +158,8 @@ extension_lookup = {"https://stac-extensions.github.io/projection/v1.0.0/schema.
                     "https://stac-extensions.github.io/datacube/v1.0.0/schema.json": populate_datacube_extension,
                     "https://stac-extensions.github.io/view/v1.0.0/schema.json": populate_viewgeometry_extension}
 
+
+
 def to_stac(obj, 
             extensions=["https://stac-extensions.github.io/projection/v1.0.0/schema.json",
                         "https://stac-extensions.github.io/datacube/v1.0.0/schema.json",
@@ -211,20 +223,16 @@ def to_stac(obj,
         geometry = check_geometry_size(obj.footprint)
     else:
         warnings.warn('Unable to locate the footprint attribute on the passed object. The STAC file will be invalid.')
-        geometry = None
-
-    # PySTAC enables extensions by name, not URI. STAC expects URIs for extension specifications.
-    extensions_by_name = [PurePosixPath(unquote(urlparse(extension).path)).parts[1] for extension in extensions]
+        geometry = None    
 
     item = pystac.Item(id=obj.productid, 
                        geometry=geometry, 
                        bbox=obj.bbox,  
                        datetime=dt,
-                       stac_extensions=extensions_by_name,
+                       stac_extensions=extensions,
                        href=os.path.join(obj.href,f'{obj.productid}.json'),
                        collection=collection,
                        properties=properties)
-    
     for extension in extensions:
         func = extension_lookup.get(extension)
         if not func:

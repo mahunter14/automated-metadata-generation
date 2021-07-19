@@ -10,7 +10,7 @@ dependencies:
   - psycopg2
   - pyfakefs
   - pyproj
-  - pystac
+  - pystac >= 1.0.0
   - pytest
   - pytest-cov
   - pyyaml
