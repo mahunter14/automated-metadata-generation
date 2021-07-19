@@ -384,7 +384,7 @@ class FGDCMetadata():
             if len(mapproj_nodes) > 1:
                 warnings.warn('More than one mapproj key found. Defaulting to the first entry in the XML template.')
             mapproj_node = mapproj_nodes[0]
-            for child in mapproj_node.getchildren():
+            for child in list(mapproj_node):
                 if child.tag == 'mapprojn':
                     continue
                 else:
