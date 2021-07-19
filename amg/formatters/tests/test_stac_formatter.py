@@ -26,9 +26,11 @@ def test_basic_stac(umd):
     print(item.to_dict())
     
     # Check property setting
-    for key in ['title', 'description', 'missions', 'instruments', 'gsd', 'license']:
+    for key in ['title', 'description', 'missions', 'gsd', 'license']:
         assert item.properties[key] == key
     
+    assert item.properties['instruments'] = ['instruments']
+
     # Check datetime handling
     assert item.properties['datetime'] == '2021-01-01T00:00:00Z'
 
