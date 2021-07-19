@@ -8,6 +8,8 @@ import warnings
 
 import pystac
 
+from dateutil import parser
+
 def populate_datacube_extension(item, obj):
     """
     Populate the cube extension in a STAC metadata record.
@@ -194,11 +196,7 @@ def to_stac(obj,
     if obj.start_date == obj.stop_date:
         dt = obj.start_date
         if not isinstance(dt, (datetime.datetime)):
-            if len(dt) == 4:
-                dt = datetime.datetime(int(dt), 1, 1)
-            elif len(dt) == 8:  # Support ISO YYYYMMDD format
-                dts = dt[0:4], dt[4:6], dt[6:]
-                dt = datetime.datetime(*map(int, dts))                
+            dt = parser.parse(dt)
     else:
         properties['start_datetime'] = obj.start_date
         properties['stop_datetime'] = obj.stop_date
@@ -207,9 +205,11 @@ def to_stac(obj,
     for key in ['title', 'description', 'missions', 'instruments', 'gsd', 'license']:
         if hasattr(obj, key):
             properties[key] = getattr(obj, key)
-        else:
-            warning.warn(f'Passed object is mission key: {key}. The returned object is likely an invalid STAC object.')
         
+        else:
+            warning.warn(f'Passed object is missing key: {key}. The returned object is likely an invalid STAC object.')
+    if isinstance(properties['instruments'], str):
+        properties['instruments'] = [properties['instruments']]
     """# Providers
     if obj.providers:
         # Step over all the providers

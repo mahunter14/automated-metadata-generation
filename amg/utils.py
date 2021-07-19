@@ -76,17 +76,6 @@ def write_stac(path: str, stac_md: dict):
               A json serializable stac metadata dict
     """
     stac_dict = stac_md.to_dict()
-    # convert from extension names to schemas
-    schema_lookup = {'projection':"https://stac-extensions.github.io/projection/v1.0.0/schema.json",
-                     'datacube': "https://stac-extensions.github.io/datacube/v1.0.0/schema.json",
-                     'ssys': "https://raw.githubusercontent.com/thareUSGS/ssys/fa12972d0e130af16ccddcf446620a4f6acc6fea/json-schema/schema.json"
-                    }
-
-    replacement_extensions = []
-    for i in stac_dict['stac_extensions']:
-        replacement_extensions.append(schema_lookup[i])
-
-    stac_dict['stac_extensions'] = replacement_extensions
     with open(path, 'w') as f:
         json.dump(stac_dict, f, indent=2)
 
