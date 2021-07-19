@@ -1,8 +1,10 @@
 import datetime
 import json
 import os
+from pathlib import PurePosixPath
 import string
-import sys
+from urllib.parse import unquote, urlparse
+import warnings
 
 import pystac
 
@@ -64,6 +66,18 @@ def populate_projection_extension(item, obj):
 def populate_ssys_extension(item, obj):
         item.properties["ssys:targets"] = obj.targets
 
+def populate_viewgeometry_extension(item, obj):
+    if obj.emission_angle:
+        item.ext.view.off_nadir = obj.emission_angle
+    if obj.incidence_angle:
+        item.ext.view.incidenace_angle = obj.incidence_angle
+    if obj.north_azimuth:
+        item.ext.view.azimuth = obj.north_azimuth
+    if obj.subsolar_ground_azimuth:
+        item.ext.view.sun_azimuth = obj.subsolar_ground_azimuth
+    if obj.local_incidence_angle:
+        item.ext.view.sun_elevation = obj.local_incidence_angle
+
 def populate_assets(assets, obj):
     """
     Populate the assets in a STAC metadata record.
@@ -89,6 +103,14 @@ def populate_assets(assets, obj):
         asset_objs[asset['key']] = pystac.Asset.from_dict(asset)
 
     return asset_objs
+
+def populate_scientific_extension(item, obj):
+    if obj.doi:
+        item.ext.scientific.doi = obj.doi
+    if obj.citation:
+        item.ext.scientific.citation = obj.citation
+    if obj.publications:
+        item.ext.scientific.publications = obj.publications
 
 def check_geometry_size(footprint):
     """
@@ -122,9 +144,14 @@ def check_geometry_size(footprint):
         n_iterations += 1
     return geojson
 
+extension_lookup = {"https://stac-extensions.github.io/projection/v1.0.0/schema.json": populate_projection_extension,
+                    "https://stac-extensions.github.io/datacube/v1.0.0/schema.json": populate_datacube_extension,
+                    "https://stac-extensions.github.io/view/v1.0.0/schema.json": populate_viewgeometry_extension}
+
 def to_stac(obj, 
             extensions=["https://stac-extensions.github.io/projection/v1.0.0/schema.json",
-                        "https://stac-extensions.github.io/datacube/v1.0.0/schema.json"],
+                        "https://stac-extensions.github.io/datacube/v1.0.0/schema.json",
+                        "https://stac-extensions.github.io/view/v1.0.0/schema.json"],
             assets={},
             collection=None):    
     
@@ -163,27 +190,13 @@ def to_stac(obj,
     else:
         properties['start_datetime'] = obj.start_date
         properties['stop_datetime'] = obj.stop_date
-        
-    # Basic
-    if obj.title:
-        properties['title'] = obj.title
     
-    if obj.description:
-        properties['description'] = obj.description
-    
-    #Instrument
-    if obj.missions:
-        properties['mission'] = ','.join(obj.missions)
-
-    if obj.instruments:
-        properties['instruments'] = obj.instruments
-        
-    if obj.gsd:
-        properties['gsd'] = obj.gsd
-    
-    # License
-    if obj.license:
-        properties['license'] = obj.license
+    # Required:
+    for key in ['title', 'description', 'missions', 'instruments', 'gsd', 'license']:
+        if hasattr(obj, key):
+            properties[key] = getattr(obj, key)
+        else:
+            warning.warn(f'Passed object is mission key: {key}. The returned object is likely an invalid STAC object.')
         
     """# Providers
     if obj.providers:
@@ -194,24 +207,29 @@ def to_stac(obj,
             properties['providers'].append({'name':provider.contact_org,
                                             'roles':[]})"""
     
-    geometry = check_geometry_size(obj.footprint)
+    if hasattr(obj, 'footprint'):
+        geometry = check_geometry_size(obj.footprint)
+    else:
+        warnings.warn('Unable to locate the footprint attribute on the passed object. The STAC file will be invalid.')
+        geometry = None
+
+    # PySTAC enables extensions by name, not URI. STAC expects URIs for extension specifications.
+    extensions_by_name = [PurePosixPath(unquote(urlparse(extension).path)).parts[1] for extension in extensions]
 
     item = pystac.Item(id=obj.productid, 
                        geometry=geometry, 
                        bbox=obj.bbox,  
                        datetime=dt,
-                       stac_extensions=extensions,
+                       stac_extensions=extensions_by_name,
                        href=os.path.join(obj.href,f'{obj.productid}.json'),
                        collection=collection,
                        properties=properties)
     
-    # Populate the projection extension
-    populate_projection_extension(item, obj)
-    
-    # Populate the data cube extension.
-    populate_datacube_extension(item, obj)
-   
-    populate_ssys_extension(item, obj)
+    for extension in extensions:
+        func = extension_lookup.get(extension)
+        if not func:
+            warnings.warn(f'Unsupported extension: {extension}. Skipping...')
+        func(item, obj)
 
     #Populate the assets in the item using the passed assets dict
     assets = populate_assets(assets, obj)

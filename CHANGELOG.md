@@ -38,3 +38,4 @@ release.
 ### Fixed
 - Removed deprecated `getchildren` call in XML parsing in the fgdcmetadata object.
 - Added CI for py3.9
+- Added support for view geometry STAC extension.
