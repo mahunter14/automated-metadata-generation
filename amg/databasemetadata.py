@@ -23,7 +23,7 @@ class DbMetadata():
     sql : str
             The sql query to execute. This query should return a 
             WKT Geometry
-            
+
     Attributes
     ----------
     footprint : obj
@@ -110,7 +110,6 @@ class GenericSQLite():
         self.data = cursor.fetchall()
         if len(self.data) > 1:
             raise ValueError (f'Expecting the query to return a single row, mappable to a single file for metadata generation. Returned {len(self.data)} records.')
-
         original_names = [description[0] for description in cursor.description]
 
         names = []
@@ -123,4 +122,6 @@ class GenericSQLite():
         self.data = dict(zip(names, self.data[0]))
 
         for k, v in self.data.items():
+            if v == 'NULL':
+                continue
             setattr(self, k, v)
