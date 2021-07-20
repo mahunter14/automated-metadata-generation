@@ -23,13 +23,7 @@ class DbMetadata():
     sql : str
             The sql query to execute. This query should return a 
             WKT Geometry
-
-    engine: obj
-            As an alternative to passing in the dbname and uri, it
-            is possible to simply pass a fully configure SQLAlchemy
-            engine object. If this is used, pass None args for dbname
-            and uri.
-
+            
     Attributes
     ----------
     footprint : obj
@@ -60,11 +54,8 @@ class DbMetadata():
     >>> db = DbMetadata('dbname', 'postgresql://uname:pw@mydbrui.gov:port', sql=sql)
     >>> db.footprint
     """
-    def __init__(self, dbname, uri, sql='SELECT geom FROM images LIMIT 1;', engine=None):
-        if engine:
-            self.engine = engine
-        else:
-            self.engine = sqlalchemy.create_engine(f'{uri}/{dbname}')
+    def __init__(self, dbname, uri, sql='SELECT geom FROM images LIMIT 1;'):
+        self.engine = sqlalchemy.create_engine(f'{uri}/{dbname}')
         self.sql = sql
 
     @property
@@ -119,21 +110,17 @@ class GenericSQLite():
         self.data = cursor.fetchall()
         if len(self.data) > 1:
             raise ValueError (f'Expecting the query to return a single row, mappable to a single file for metadata generation. Returned {len(self.data)} records.')
-        elif len(self.data) == 0:
-            warnings.warn('No metadata record found using the given query in the database.')
-            self.data = {}
-            return
-            
+
         original_names = [description[0] for description in cursor.description]
-        
+
         names = []
         for name in original_names:
             if column_remapper.get(name):
                 names.append(column_remapper[name])
             else:
                 names.append(name)        
-        
+
         self.data = dict(zip(names, self.data[0]))
-        
+
         for k, v in self.data.items():
             setattr(self, k, v)
