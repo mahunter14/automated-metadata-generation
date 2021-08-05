@@ -2,9 +2,9 @@
 
 Supported Properties
 ====================
-The following are the properties supported by metadata containers in this library.
+The following properties are supported by metadata containers in this library.
 
-The YAMLMetadata and GenericSQLite support any arbitrary keys. The former is simply a key:value mapping, so the metadata producer is free to include any key:value pair they like, assuming the keys are homogenized to this library. The GenericSQLite metadata provides a `column_remapper` kwarg that can be used to remap existing database column names to common amg property names.
+The YAMLMetadata and GenericSQLite support any arbitrary keys. The former is simply a key:value mapping, so the metadata producer is free to include any key:value pair they like, assuming the keys are homogenized to this library. The GenericSQLite metadata provides a `column_remapper` kwarg that can be used to remap existing database column names to common automated metadata generate (amg) property names.
 
 +-----------------------------+------------+--------------+--------------+--------------+-------------------+-----------------+--------------+--------------+
 |                             | DbMetadata | FGDCMetadata | GDALMetadata | IsisMetadata | IsisFootPrintBlob | PcAlignMetadata | YAMLMetadata | GenericSQLite|
